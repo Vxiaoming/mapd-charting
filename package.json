@@ -26,14 +26,13 @@
   },
   "main": "src/index.js",
   "scripts": {
-    "ex": "webpack-dev-server --content-base ./raster-heatmap-example",
     "build:commonjs": "cross-env BABEL_ENV=commonjs babel index.js --out-dir lib",
     "build": "webpack",
     "build:docs": "./node_modules/documentation/bin/documentation.js build src/** -f html -o docs",
-    "build:example": "npm run clean:example && webpack && bash scripts/copy-example-libs.sh",
+    "build:example": "webpack --config ./example/webpack.config.js",
     "clean": "rm -rf build.log node_modules/ dist/ && npm run clean:docs && npm run clean:example",
     "clean:docs": "rm -rf docs",
-    "clean:example": "rm -rf build.log example/js/*",
+    "clean:example": "rm -rf build.log example/assets/*",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "docs": "npm run build:docs && open docs/index.html",
     "lint": "eslint $(find src -name \"*.js\" ! -name '*.spec.js')",
@@ -42,9 +41,9 @@
     "report": "nyc report --reporter=lcov && open coverage/lcov-report/index.html",
     "selenium:install": "selenium-standalone install --version=3.0.0-beta4",
     "selenium:start": "selenium-standalone start --version=3.0.0-beta4",
-    "start": "npm run build:example && http-server -p 8081 -o -c-1",
+    "start": "webpack-dev-server --content-base ./example --config ./example/webpack.config.js",
     "test": "npm run lint && npm run test:unit",
-    "test:unit": "find ./src -name '*.spec.js' | NODE_PATH=./src xargs nyc mocha --opts ./test/mocha.unit.opts"
+    "test:unit": "find ./src -name '*.spec.js' | BABEL_ENV=test NODE_PATH=./src xargs nyc mocha --opts ./test/mocha.unit.opts"
   },
   "dependencies": {
     "@mapd/mapd-draw": "git://github.com/mapd/mapd-draw.git",
@@ -52,6 +51,7 @@
     "deep-equal": "1.0.1",
     "earcut": "^2.1.1",
     "mapbox-gl": "https://github.com/mapd/mapbox-gl-js/tarball/9c04de6949fe498c8c79f5c0627dfd6d6321f307",
+    "mapd-data-layer": "0.0.2-alpha",
     "moment": "2.13.0",
     "ramda": "0.21.0",
     "simplify-js": "^1.2.1"
@@ -65,7 +65,9 @@
     "babel-eslint": "^6.1.1",
     "babel-loader": "6.2.4",
     "babel-plugin-istanbul": "^4.1.3",
+    "babel-plugin-transform-require-ignore": "^0.1.0",
     "babel-preset-es2015": "^6.9.0",
+    "babel-preset-flow": "^6.23.0",
     "babel-preset-stage-0": "^6.5.0",
     "babel-register": "^6.4.3",
     "chai": "^3.5.0",
